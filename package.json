@@ -1,0 +1,25 @@
+{
+  "name": "gview",
+  "version": "1.0.0",
+  "description": "Electron Git Visualizer",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bwireman/gView.git"
+  },
+  "author": "Ben Wireman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bwireman/gView/issues"
+  },
+  "homepage": "https://github.com/bwireman/gView#readme",
+  "dependencies": {
+    "simple-git": "^1.92.0"
+  },
+  "devDependencies": {
+    "electron": "^1.8.4"
+  }
+}
