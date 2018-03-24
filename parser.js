@@ -27,7 +27,7 @@ module.exports = class parser {
         let log = await this.log(directoryPath);
         console.log(log);
         for (var i = 0; i < log.all.length; i++) {
-            nodes.push(new Node (log.all[i].author_name, log.all[i].date, log.all[i].message, log.all[i].message));
+            nodes.push(new Node (log.all[i].author_name, log.all[i].date, log.all[i].message, log.all[i].author_email));
         }
 
         console.log(nodes);
