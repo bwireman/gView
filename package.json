@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/bwireman/gView#readme",
   "dependencies": {
+    "browserify-fs": "^1.0.0",
     "gitgraph.js": "^1.11.4",
     "simple-git": "^1.92.0"
   },

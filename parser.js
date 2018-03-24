@@ -34,6 +34,39 @@ module.exports = class parser {
         return branch;
     }
 
+    async getParent(branchName) {
+        //git show-branch | grep '*' | grep -v "$(git rev-parse --abbrev-ref HEAD)" | head -n1 | sed 's/.*\[\(.*\)\].*/\1/' | sed 's/[\^~].*//'
+        //var cmd = "show-branch | grep '*' | grep -v " + branchName + " | head -n1 | sed 's/.*\[\(.*\)\].*/\1/' | sed 's/[\^~].*//'"
+        const git = require('simple-git/promise');
+        
+        let raw = null;
+        let parent = null;
+        try {
+            raw = await git(directoryPath).raw([
+                'show-branch'
+            ]);
+
+            raw = raw.substring(raw.indexOf('---')).split("*");
+            var i = 1;
+
+            while (raw[i].substring(raw[i].indexOf('[') + 1, raw[i].indexOf(']')).includes(branchName))
+            {
+                i++;
+            }
+            parent = raw[i].substring(raw[i].indexOf('[') + 1, raw[i].indexOf(']')).trim();
+
+
+            console.log(raw);
+            console.log(parent);
+
+        }
+        catch (e) {
+            console.log(e);
+        }
+        
+        return parent;
+    }
+
     async buildNodes() {
 
         let nodes = [];
@@ -47,7 +80,7 @@ module.exports = class parser {
         for (var i = 0; i < nodes.length; i++) {
             if (nodes[i].Branch == null)
             {
-                nodes[i].Branch = CurrBranch;
+                nodes[i].Branch = [CurrBranch];
             }
         }
 
@@ -59,9 +92,19 @@ module.exports = class parser {
 
         if (commitMessage.includes("(") && commitMessage.includes(")"))
         {
-            let leftParen = commitMessage.indexOf("(");
+            let leftParen = commitMessage.indexOf("(") + 1;
             let rightParen = commitMessage.indexOf(")");
-            let temp = commitMessage.substring(leftParen, rightParen).split(",");
+            let possibles = commitMessage.substring(leftParen, rightParen).split(",");
+            let temp = [];
+            for (var i = 0; i < possibles.length; ++i)
+            {
+                if (!possibles[i].includes("origin"))
+                {
+                    temp.push(possibles[i].trim());
+                }
+            }
+
+
             return temp;
         }
         else

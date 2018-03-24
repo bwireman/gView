@@ -17,9 +17,8 @@ app.on('ready', function() {
         protocol: 'file',
         slashes: true
     }));
-
     const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
-    Menu.setApplicationMenu(mainMenu);
+   Menu.setApplicationMenu(mainMenu);
 });
 
 //create menu template
@@ -37,7 +36,7 @@ const mainMenuTemplate = [
             {
                 label: "log",
                 click(){
-                    parse.buildNodes();
+                    parse.getParent("test");
                 }
             }
         ]
