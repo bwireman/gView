@@ -1,0 +1,1 @@
+const grapher = require('GitGraph');
