@@ -1,24 +1,11 @@
 const electron = require('electron');
 const url = require('url');
 const path = require('path');
-
+const Parser = require('./parser.js');
 const {Menu, app, BrowserWindow} = electron;
 
 let mainWindow;
-
-async function log (workingDir) {
-    const git = require('simple-git/promise');
-    
-    let statusSummary = null;
-    try {
-       statusSummary = await git(workingDir).log();
-    }
-    catch (e) {
-       // handle the error
-    }
-    
-    return statusSummary;
- }
+const parse = new Parser();
 
 //Listen for app
 app.on('ready', function() {
@@ -48,10 +35,9 @@ const mainMenuTemplate = [
                 }
             },
             {
-                label: 'Log',
-                click() {
-                    log(__dirname).then(status => console.log(status));
-               
+                label: "log",
+                click(){
+                    parse.buildNodes();
                 }
             }
         ]
