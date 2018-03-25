@@ -3,6 +3,7 @@ const url = require('url');
 const path = require('path');
 const Node = require('./commitnode.js');
 
+// /let directoryPath = "C:/Users/Ben Wireman/Desktop/EECS-484-Project-3";
 let directoryPath = __dirname;
 module.exports = class parser {
 
@@ -79,11 +80,7 @@ module.exports = class parser {
                         post[line] = post[line].substring(0, SymbolsAndSpacings[mySymbolAndSpacingIndex].spacing) + "A"
                             + post[line].substring(1 + SymbolsAndSpacings[mySymbolAndSpacingIndex].spacing);
                     }
-
-
                 }
-
-
 
                 for (var line = 1; line < post.length; ++line) {
                     post[line] = post[line].substring(0, spacer).replace("*", "+") + post[line].substring(spacer);
@@ -98,29 +95,32 @@ module.exports = class parser {
                     possibles.push(post[line]);
                 }
             }
-            parent = possibles[0].substring(possibles[0].indexOf("[") + 1, possibles[0].indexOf("]"))
-            .replace("^", " ").replace("~", " ").trim();
 
-            for (var line = 0; line < possibles.length; ++line) {
-               
-                if (parent == branchName)
-                {
-                    parent = possibles[line].substring(possibles[line].indexOf("[") + 1, possibles[line].indexOf("]"))
-                    .replace("^", " ").replace("~", " ").replace(/[0-9]/g, '').trim();
+            if (possibles.length == 0) {
+                return branchName;
+            }
+            else {
+                parent = possibles[0].substring(possibles[0].indexOf("[") + 1, possibles[0].indexOf("]"))
+                    .replace("^", " ").replace("~", " ").trim();
+
+                for (var line = 0; line < possibles.length; ++line) {
+
+                    if (parent == branchName) {
+                        parent = possibles[line].substring(possibles[line].indexOf("[") + 1, possibles[line].indexOf("]"))
+                            .replace("^", " ").replace("~", " ").replace(/[0-9]/g, '').trim();
+                    }
                 }
             }
 
-            // parent = possibles[1].substring(possibles[1].indexOf("[") + 1, possibles[1].indexOf("]"))
-            //     .replace("^", " ").replace("~", " ").trim();
 
-            console.log(parent);
+            return parent;
+
 
         }
         catch (e) {
             console.log(e);
         }
 
-        return parent;
     }
 
     async buildNodes() {
@@ -134,7 +134,7 @@ module.exports = class parser {
         let CurrBranch = (await this.getCurrentBranch(directoryPath)).current;
 
         for (var i = 0; i < nodes.length; i++) {
-            if (nodes[i].Branch == null) {
+            if (nodes[i].Branch == null || nodes[i].Branch == "") {
                 nodes[i].Branch = [CurrBranch];
             }
         }
@@ -152,7 +152,7 @@ module.exports = class parser {
             let temp = [];
             for (var i = 0; i < possibles.length; ++i) {
                 if (!possibles[i].includes("origin")) {
-                    temp.push(possibles[i].trim());
+                    temp.push(possibles[i].replace("HEAD -> ", "").trim());
                 }
             }
 
