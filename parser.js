@@ -143,7 +143,7 @@ module.exports = class parser {
         else if(branch.length > 1)
         {
             var foundRoot = false;
-            var toReturn;
+            var toReturn = null;
             for (var br of branch)
             {
                 if (br.includes("*") && !foundRoot)
@@ -155,8 +155,15 @@ module.exports = class parser {
                     foundRoot = true;
                     toReturn = [br.replace("*", "").trim()];
                 }
+            
             }
 
+            if(!foundRoot && toReturn == null)
+            {
+                toReturn = [branches[0].trim()];
+            }
+
+            console.log(toReturn);
             return toReturn;
         }
 
@@ -217,6 +224,53 @@ module.exports = class parser {
         else {
             return [];
         }
+    }
+
+    async isMerge(hash, root) {
+
+        const git = require('simple-git/promise');
+
+        let commitInfo = null;
+        try {
+            commitInfo = await git(directoryPath).raw([
+                'cat-file', '-p', hash
+            ]);
+        }
+        catch (e) {
+            console.log(e);
+        }
+
+        commitInfo = commitInfo.split("\n");
+        var parents = [];
+
+        for (var i = 1; i < commitInfo.length; ++i)
+        {
+            if (commitInfo[i].includes("parent") && i != commitInfo.length - 2)
+            {
+                parents.push(commitInfo[i].replace("parent", "").trim());
+            }
+        }
+
+        console.log(parents);
+        
+        if (parents.length > 1)
+        {
+            var branches = [];
+            for (var prHash of parents)
+            {
+                branches.push(await this.getBranch(prHash, root))
+            }
+
+            console.log(branches);
+            return branches;
+
+        }
+        else
+        {
+            return null;
+        }
+
+        
     }
 
 }

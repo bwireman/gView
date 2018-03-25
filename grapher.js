@@ -68,19 +68,33 @@ async function main() {
   var branch = gitGraph;
 
   for (node of result) {
-    console.log(node.Branch[0]);
-    if (node.Branch != []) {
-      branch = branches[await addBranchIfNew(node.Branch[0])];
-    }
-
-
-    branch.branch.commit(
-      {
+    branch = branches[await addBranchIfNew(node.Branch[0])];
+    
+    var branchesInMerge = await parse.isMerge(node.Hash, "master");
+    if (branchesInMerge != null)
+    {
+      console.log(branchesInMerge);
+      var merged = branches[await addBranchIfNew(branchesInMerge[0][0])];
+      var from = branches[await addBranchIfNew(branchesInMerge[1][0])];
+      from.branch.merge(merged.branch,  {
         message: node.Message,
         author: node.Author,
-        messageHashDisplay: false
-      }
-    );
+        messageHashDisplay: false,
+        dotColor: "black",
+      });
+    }
+    else
+    {
+      console.log("commit")
+      branch.branch.commit(
+        {
+          message: node.Message,
+          author: node.Author,
+          messageHashDisplay: false
+        }
+      );
+    }
+   
 
   }
 }
