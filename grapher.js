@@ -6,7 +6,7 @@ const Parser = require('./parser.js');
 var config = {
   template: "metro",
   reverseArrow: false, // to make arrows point to ancestors, if displayed
-  orientation: "vertical",
+  orientation: "vertical-reverse",
   // mode: "compact" // special compact mode: hide messages & compact graph
 };
 
