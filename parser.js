@@ -3,7 +3,7 @@ const url = require('url');
 const path = require('path');
 const Node = require('./commitnode.js');
 
-// /let directoryPath = "C:/Users/Ben Wireman/Desktop/EECS-484-Project-3";
+//let directoryPath = "C:/Users/Ben Wireman/Desktop/tester";
 let directoryPath = __dirname;
 module.exports = class parser {
 

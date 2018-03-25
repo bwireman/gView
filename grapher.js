@@ -53,6 +53,11 @@ async function addBranchIfNew(name) {
     meta = branchMeta(findbranch(prName).branch.branch(name), name, prName);
     branches.push(meta);
   }
+  else
+  {
+    console.log("found");
+    console.log(meta);
+  }
 
   return branches.indexOf(meta);
 
@@ -62,10 +67,11 @@ async function main() {
   var result = await run();
   result.reverse();
   var first = gitGraph.branch(result[0].Branch[0]);
-  branches.push(branchMeta(gitGraph, result[0].Branch[0], await parse.getParent(result[0].Branch[0])));
+  branches.push(branchMeta(first, result[0].Branch[0], await parse.getParent(result[0].Branch[0])));
   var branch = gitGraph;
 
   for (node of result) {
+    console.log(node.Branch[0]);
     branch = branches[await addBranchIfNew(node.Branch[0])];
 
     branch.branch.commit(
