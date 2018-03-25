@@ -3,7 +3,8 @@ const url = require('url');
 const path = require('path');
 const Node = require('./commitnode.js');
 
-let directoryPath = __dirname;
+let directoryPath = "C:/Users/Ben Wireman/Desktop/EECS-484-Project-3";
+// let directoryPath = __dirname;
 module.exports = class parser {
 
     async log(workingDir) {
@@ -98,29 +99,35 @@ module.exports = class parser {
                     possibles.push(post[line]);
                 }
             }
-            parent = possibles[0].substring(possibles[0].indexOf("[") + 1, possibles[0].indexOf("]"))
-            .replace("^", " ").replace("~", " ").trim();
-
-            for (var line = 0; line < possibles.length; ++line) {
-               
-                if (parent == branchName)
-                {
-                    parent = possibles[line].substring(possibles[line].indexOf("[") + 1, possibles[line].indexOf("]"))
-                    .replace("^", " ").replace("~", " ").replace(/[0-9]/g, '').trim();
+            
+            if (possibles.length == 0)
+            {
+                return branchName;
+            }
+            else
+            {
+                parent = possibles[0].substring(possibles[0].indexOf("[") + 1, possibles[0].indexOf("]"))
+                .replace("^", " ").replace("~", " ").trim();
+    
+                for (var line = 0; line < possibles.length; ++line) {
+                   
+                    if (parent == branchName)
+                    {
+                        parent = possibles[line].substring(possibles[line].indexOf("[") + 1, possibles[line].indexOf("]"))
+                        .replace("^", " ").replace("~", " ").replace(/[0-9]/g, '').trim();
+                    }
                 }
             }
+           
 
-            // parent = possibles[1].substring(possibles[1].indexOf("[") + 1, possibles[1].indexOf("]"))
-            //     .replace("^", " ").replace("~", " ").trim();
-
-            console.log(parent);
+            return parent;
+           
 
         }
         catch (e) {
             console.log(e);
         }
 
-        return parent;
     }
 
     async buildNodes() {
