@@ -28,12 +28,17 @@ function branchMeta(br, nm, pr) {
 }
 
 function findbranch(parentName) {
-  console.log(parentName);
   var meta = branches.find(function (element) {
     return parentName == element.name;
   });
 
-  console.log(meta);
+  if (meta == undefined)
+  {
+    return branches.find(function (element) {
+      return parentName == element.parent;
+    });
+  }
+
   return meta;
 
 }
@@ -44,10 +49,8 @@ async function addBranchIfNew(name) {
   });
 
   if (meta == undefined) {
-    console.log(name);
     var prName = await parse.getParent(name);
-    console.log(prName);
-    meta = branchMeta(name, findbranch(prName).branch(name), prName);
+    meta = branchMeta(findbranch(prName).branch.branch(name), name, prName);
     branches.push(meta);
   }
 
@@ -58,16 +61,13 @@ async function addBranchIfNew(name) {
 async function main() {
   var result = await run();
   result.reverse();
-  console.log(result[0]);
   var first = gitGraph.branch(result[0].Branch[0]);
-  branches.push(branchMeta(gitGraph, result[0].Branch[0], result[0].Branch[0]));
+  branches.push(branchMeta(gitGraph, result[0].Branch[0], await parse.getParent(result[0].Branch[0])));
   var branch = gitGraph;
 
   for (node of result) {
-
     branch = branches[await addBranchIfNew(node.Branch[0])];
 
-    console.log(branch);
     branch.branch.commit(
       {
         message: node.Message,
