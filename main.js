@@ -36,7 +36,9 @@ const mainMenuTemplate = [
             {
                 label: "log",
                 click(){
-                    parse.getParent("parenttest");
+                     //parse.getParent("master");
+                     //parse.log(__dirname);
+                     parse.getBranch("d1024889efce4ca354d38792e6c69adb8b62fd6b", "master");
                 }
             }
         ]

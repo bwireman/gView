@@ -12,7 +12,7 @@ module.exports = class parser {
 
         let fullLogJson = null;
         try {
-            fullLogJson = await git(workingDir).log({ '--graph': null, '--decorate': null, '--all': null });
+            fullLogJson = await git(workingDir).log({'--decorate': null, '--all': null });
         }
         catch (e) {
             console.log(e);
@@ -112,7 +112,6 @@ module.exports = class parser {
                 }
             }
 
-
             return parent;
 
 
@@ -123,23 +122,80 @@ module.exports = class parser {
 
     }
 
+    async getBranch(hash, root) {
+        const git = require('simple-git/promise');
+        hash = hash.trim();
+        let branch = null;
+        try {
+            branch = await git(directoryPath).raw([
+             'branch', '--contains', hash   
+            ]);
+            branch = branch.split("\n");
+        }
+        catch (e) {
+            console.log(e);
+        }
+
+        if (branch.length == 1)
+        {
+            return branch.replace("*", "").trim();
+        }
+        else if(branch.length > 1)
+        {
+            var foundRoot = false;
+            var toReturn;
+            for (var br of branch)
+            {
+                if (br.includes("*") && !foundRoot)
+                {
+                    toReturn = [br.replace("*", "").trim()];
+                }
+                else if(br.replace("*", "").trim() == root)
+                {
+                    foundRoot = true;
+                    toReturn = [br.replace("*", "").trim()];
+                }
+            }
+
+            return toReturn;
+        }
+
+    }
+
+    async getRoot(Nodes) {
+
+        var currentBranchOfNode = "";
+        for (var i = 0; i < Nodes.length; i++) {
+
+            if (Nodes[i].Branch.length > 0)
+            {
+                currentBranchOfNode = Nodes[i].Branch[0];
+                var parent = await this.getParent(currentBranchOfNode);
+                if (parent == currentBranchOfNode)
+                {
+                    return parent;
+                }
+            }
+        }
+
+    }
+
     async buildNodes() {
 
         let nodes = [];
 
         let log = await this.log(directoryPath);
         for (var i = 0; i < log.all.length; i++) {
-            nodes.push(new Node(log.all[i].author_name, log.all[i].date, this.parseBranch(log.all[i].message), log.all[i].message));
+            nodes.push(new Node(log.all[i].author_name, log.all[i].date, this.parseBranch(log.all[i].message), log.all[i].message, log.all[i].hash));
         }
         let CurrBranch = (await this.getCurrentBranch(directoryPath)).current;
-
+        var root = await this.getRoot(nodes);
         for (var i = 0; i < nodes.length; i++) {
-            if (nodes[i].Branch == null || nodes[i].Branch == "") {
-                nodes[i].Branch = [CurrBranch];
-            }
+            
+            nodes[i].Branch = await this.getBranch(nodes[i].Hash, root);
+
         }
 
-        console.log(nodes);
         return nodes;
     }
 
@@ -156,11 +212,10 @@ module.exports = class parser {
                 }
             }
 
-
             return temp;
         }
         else {
-            return null;
+            return [];
         }
     }
 

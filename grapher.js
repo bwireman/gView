@@ -32,8 +32,7 @@ function findbranch(parentName) {
     return parentName == element.name;
   });
 
-  if (meta == undefined)
-  {
+  if (meta == undefined) {
     return branches.find(function (element) {
       return parentName == element.parent;
     });
@@ -53,9 +52,7 @@ async function addBranchIfNew(name) {
     meta = branchMeta(findbranch(prName).branch.branch(name), name, prName);
     branches.push(meta);
   }
-  else
-  {
-    console.log("found");
+  else {
     console.log(meta);
   }
 
@@ -72,7 +69,10 @@ async function main() {
 
   for (node of result) {
     console.log(node.Branch[0]);
-    branch = branches[await addBranchIfNew(node.Branch[0])];
+    if (node.Branch != []) {
+      branch = branches[await addBranchIfNew(node.Branch[0])];
+    }
+
 
     branch.branch.commit(
       {
