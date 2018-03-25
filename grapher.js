@@ -15,8 +15,17 @@ var parse = new Parser();
 var gitGraph = new GitGraph(config);
 var branches = [];
 
-async function run() {
-  return await parse.buildNodes();
+async function init() {
+
+  var nodes = await parse.buildNodes();
+  var root = await parse.getRoot(nodes);
+  var info = {
+    "nodes":nodes, 
+    "root": root
+  } 
+
+  return info;
+
 }
 
 function branchMeta(br, nm, pr) {
@@ -61,19 +70,18 @@ async function addBranchIfNew(name) {
 }
 
 async function main() {
-  var result = await run();
-  result.reverse();
-  var first = gitGraph.branch(result[0].Branch[0]);
-  branches.push(branchMeta(first, result[0].Branch[0], await parse.getParent(result[0].Branch[0])));
+  var result = await init();
+  result.nodes.reverse();
+  var first = gitGraph.branch(result.nodes[0].Branch[0]);
+  branches.push(branchMeta(first, result.nodes[0].Branch[0], await parse.getParent(result.nodes[0].Branch[0])));
   var branch = gitGraph;
 
-  for (node of result) {
+  for (node of result.nodes) {
     branch = branches[await addBranchIfNew(node.Branch[0])];
     
-    var branchesInMerge = await parse.isMerge(node.Hash, "master");
+    var branchesInMerge = await parse.isMerge(node.Hash, result.root);
     if (branchesInMerge != null)
     {
-      console.log(branchesInMerge);
       var merged = branches[await addBranchIfNew(branchesInMerge[0][0])];
       var from = branches[await addBranchIfNew(branchesInMerge[1][0])];
       from.branch.merge(merged.branch,  {
@@ -85,7 +93,6 @@ async function main() {
     }
     else
     {
-      console.log("commit")
       branch.branch.commit(
         {
           message: node.Message,
