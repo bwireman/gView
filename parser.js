@@ -54,12 +54,12 @@ module.exports = class parser {
                 'show-branch'
             ]);
 
-            var post = raw.substring(raw.indexOf('---')).split("\n");
-            var pre = raw.substring(0, raw.indexOf('---')).split("\n");
+            var post = raw.substring(raw.indexOf('-')).split("\n");
+            var pre = raw.substring(0, raw.indexOf('-')).split("\n");
             var spacer = pre.length - 1;
             var SymbolsAndSpacings = [];
             var mySymbolAndSpacingIndex;
-
+            var rewrite = false;
             //find symbols and spacing
             for (var k = 0; k < spacer; ++k) {
                 var b = pre[k].substring(pre[k].indexOf('[') + 1, pre[k].indexOf(']')).trim();
@@ -67,32 +67,52 @@ module.exports = class parser {
 
                 if (b == branchName.trim()) {
                     mySymbolAndSpacingIndex = k;
-                }
-            }
-
-            for (var commit of post) {
-                var found = false;
-                var alone = true;
-
-                if (commit[SymbolsAndSpacings[mySymbolAndSpacingIndex].spacing] == SymbolsAndSpacings[mySymbolAndSpacingIndex].symbol) {
-                    var searchSpace = commit.substring(0, spacer);
-                    console.log(commit);
-                    for (let i in searchSpace) {
-                        if (!found && searchSpace[i] == SymbolsAndSpacings[i].symbol && i != mySymbolAndSpacingIndex) {
-                            alone = false;
-                            parent = commit.substring(commit.indexOf('[') + 1, commit.indexOf(']')).trim();
-                        }
-
-                        if(!alone)
-                        {
-                            
-                        }
+                    if (SymbolsAndSpacings[k].symbol != '*') {
+                        rewrite = true;
                     }
                 }
-
             }
 
-            // console.log(pre);
+            if (rewrite) {
+                for (var line = 1; line < post.length; ++line) {
+                    if (post[line][SymbolsAndSpacings[mySymbolAndSpacingIndex].spacing] == "+") {
+                        post[line] = post[line].substring(0, SymbolsAndSpacings[mySymbolAndSpacingIndex].spacing) + "A"
+                            + post[line].substring(1 + SymbolsAndSpacings[mySymbolAndSpacingIndex].spacing);
+                    }
+
+
+                }
+
+
+
+                for (var line = 1; line < post.length; ++line) {
+                    post[line] = post[line].substring(0, spacer).replace("*", "+") + post[line].substring(spacer);
+                    post[line] = post[line].substring(0, spacer).replace("A", "*") + post[line].substring(spacer);
+                }
+            }
+
+
+            var possibles = [];
+            for (var line = 1; line < post.length; ++line) {
+                if (post[line].includes("*")) {
+                    possibles.push(post[line]);
+                }
+            }
+            parent = possibles[0].substring(possibles[0].indexOf("[") + 1, possibles[0].indexOf("]"))
+            .replace("^", " ").replace("~", " ").trim();
+
+            for (var line = 0; line < possibles.length; ++line) {
+               
+                if (parent == branchName)
+                {
+                    parent = possibles[line].substring(possibles[line].indexOf("[") + 1, possibles[line].indexOf("]"))
+                    .replace("^", " ").replace("~", " ").replace(/[0-9]/g, '').trim();
+                }
+            }
+
+            // parent = possibles[1].substring(possibles[1].indexOf("[") + 1, possibles[1].indexOf("]"))
+            //     .replace("^", " ").replace("~", " ").trim();
+
             console.log(parent);
 
         }
