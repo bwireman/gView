@@ -38,7 +38,7 @@ const mainMenuTemplate = [
                 click(){
                      //parse.getParent("master");
                      //parse.log(__dirname);
-                     parse.isMerge("47484a4a65e8055adef88e3f0abcbc03a7db758a", "master");
+                     parse.getAndMapBranches();
                 }
             }
         ]

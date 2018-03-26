@@ -12,7 +12,7 @@ module.exports = class parser {
 
         let fullLogJson = null;
         try {
-            fullLogJson = await git(workingDir).log({'--decorate': null, '--all': null });
+            fullLogJson = await git(workingDir).log({ '--decorate': null, '--all': null });
         }
         catch (e) {
             console.log(e);
@@ -21,18 +21,38 @@ module.exports = class parser {
         return fullLogJson;
     }
 
-    async getCurrentBranch(workingDir) {
+    Branch(name, prName) {
+
+        return {
+            "name": name,
+            "parent": prName
+        }
+
+    }
+
+    
+
+    async getAndMapBranches(root) {
         const git = require('simple-git/promise');
 
-        let branch = null;
+        let branches = [];
         try {
-            branch = await git(workingDir).branch();
+            var output = await git(directoryPath).branch();
+            for (var br of output.all) {
+                
+                if (!br.includes("remotes/"))
+                {
+                    branches.push(this.Branch(br, await this.getParent(br)));
+                }
+            }
+
+
+            
         }
         catch (e) {
             console.log(e);
         }
-
-        return branch;
+        return branches;
     }
 
     async getParent(branchName) {
@@ -128,7 +148,7 @@ module.exports = class parser {
         let branch = null;
         try {
             branch = await git(directoryPath).raw([
-             'branch', '--contains', hash   
+                'branch', '--contains', hash
             ]);
             branch = branch.split("\n");
         }
@@ -136,30 +156,24 @@ module.exports = class parser {
             console.log(e);
         }
 
-        if (branch.length == 1)
-        {
+        if (branch.length == 1) {
             return branch.replace("*", "").trim();
         }
-        else if(branch.length > 1)
-        {
+        else if (branch.length > 1) {
             var foundRoot = false;
             var toReturn = null;
-            for (var br of branch)
-            {
-                if (br.includes("*") && !foundRoot)
-                {
+            for (var br of branch) {
+                if (br.includes("*") && !foundRoot) {
                     toReturn = [br.replace("*", "").trim()];
                 }
-                else if(br.replace("*", "").trim() == root)
-                {
+                else if (br.replace("*", "").trim() == root) {
                     foundRoot = true;
                     toReturn = [br.replace("*", "").trim()];
                 }
-            
+
             }
 
-            if(!foundRoot && toReturn == null)
-            {
+            if (!foundRoot && toReturn == null) {
                 toReturn = [branch[0].trim()];
             }
 
@@ -173,12 +187,10 @@ module.exports = class parser {
         var currentBranchOfNode = "";
         for (var i = 0; i < Nodes.length; i++) {
 
-            if (Nodes[i].Branch.length > 0)
-            {
+            if (Nodes[i].Branch.length > 0) {
                 currentBranchOfNode = Nodes[i].Branch[0];
                 var parent = await this.getParent(currentBranchOfNode);
-                if (parent == currentBranchOfNode)
-                {
+                if (parent == currentBranchOfNode) {
                     return parent;
                 }
             }
@@ -194,10 +206,9 @@ module.exports = class parser {
         for (var i = 0; i < log.all.length; i++) {
             nodes.push(new Node(log.all[i].author_name, log.all[i].date, this.parseBranch(log.all[i].message), log.all[i].message, log.all[i].hash));
         }
-        let CurrBranch = (await this.getCurrentBranch(directoryPath)).current;
         var root = await this.getRoot(nodes);
         for (var i = 0; i < nodes.length; i++) {
-            
+
             nodes[i].Branch = await this.getBranch(nodes[i].Hash, root);
 
         }
@@ -242,32 +253,27 @@ module.exports = class parser {
         commitInfo = commitInfo.split("\n");
         var parents = [];
 
-        for (var i = 1; i < commitInfo.length; ++i)
-        {
-            if (commitInfo[i].includes("parent") && i != commitInfo.length - 2)
-            {
+        for (var i = 1; i < commitInfo.length; ++i) {
+            if (commitInfo[i].includes("parent") && i != commitInfo.length - 2) {
                 parents.push(commitInfo[i].replace("parent", "").trim());
             }
         }
 
-        
-        if (parents.length > 1)
-        {
+
+        if (parents.length > 1) {
             var branches = [];
-            for (var prHash of parents)
-            {
+            for (var prHash of parents) {
                 branches.push(await this.getBranch(prHash, root))
             }
 
             return branches;
 
         }
-        else
-        {
+        else {
             return null;
         }
 
-        
+
     }
 
 }
