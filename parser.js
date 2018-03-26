@@ -134,7 +134,6 @@ module.exports = class parser {
 
             return parent;
 
-
         }
         catch (e) {
             console.log(e);
@@ -160,6 +159,7 @@ module.exports = class parser {
             return branch.replace("*", "").trim();
         }
         else if (branch.length > 1) {
+            console.log(branch);
             var foundRoot = false;
             var toReturn = null;
             for (var br of branch) {
