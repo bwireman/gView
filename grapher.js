@@ -101,9 +101,8 @@ async function main() {
 				message: node.Message,
 				author: node.Author,
 				messageHashDisplay: false,
-				//lineDash: [3, 2],
-    			dotStrokeWidth: 5,
-    			dotColor: "white",
+				dotStrokeWidth: 5,
+				dotColor: "white",
 			});
 		}
 		else {
@@ -116,22 +115,15 @@ async function main() {
 				branch.branch.delete();
 				var newlyAdded = Parent.branch.branch(branch.name);
 				branch.branch = newlyAdded;
-				// Parent.branch.merge(branch.branch, {
-				// 	message: node.Message,
-				// 	author: node.Author,
-				// 	messageHashDisplay: false,
-				// 	fastForward: false
-				// });
 			}
-			// else {
-				branch.branch.commit(
-					{
-						message: node.Message,
-						author: node.Author,
-						messageHashDisplay: false,
-					}
-				);
-			
+			branch.branch.commit(
+				{
+					message: node.Message,
+					author: node.Author,
+					messageHashDisplay: false,
+				}
+			);
+
 
 		}
 

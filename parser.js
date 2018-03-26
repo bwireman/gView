@@ -3,8 +3,8 @@ const url = require('url');
 const path = require('path');
 const Node = require('./commitnode.js');
 
-let directoryPath = "C:/Users/Ben Wireman/Desktop/tester";
-//let directoryPath = __dirname;
+//let directoryPath = "C:/Users/Ben Wireman/Desktop/tester";
+let directoryPath = __dirname;
 module.exports = class parser {
 
     async log(workingDir) {
@@ -30,7 +30,7 @@ module.exports = class parser {
 
     }
 
-    
+
 
     async getAndMapBranches(root) {
         const git = require('simple-git/promise');
@@ -39,15 +39,14 @@ module.exports = class parser {
         try {
             var output = await git(directoryPath).branch();
             for (var br of output.all) {
-                
-                if (!br.includes("remotes/"))
-                {
+
+                if (!br.includes("remotes/")) {
                     branches.push(this.Branch(br, await this.getParent(br)));
                 }
             }
 
 
-            
+
         }
         catch (e) {
             console.log(e);

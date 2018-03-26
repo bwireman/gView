@@ -2,13 +2,13 @@ const electron = require('electron');
 const url = require('url');
 const path = require('path');
 const Parser = require('./parser.js');
-const {Menu, app, BrowserWindow} = electron;
+const { Menu, app, BrowserWindow } = electron;
 
 let mainWindow;
 const parse = new Parser();
 
 //Listen for app
-app.on('ready', function() {
+app.on('ready', function () {
     //create window
     mainWindow = new BrowserWindow({});
     //load HTML
@@ -17,14 +17,14 @@ app.on('ready', function() {
         protocol: 'file',
         slashes: true
     }));
-//     const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
-//    Menu.setApplicationMenu(mainMenu);
+    //     const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
+    //    Menu.setApplicationMenu(mainMenu);
 });
 
 //create menu template
 const mainMenuTemplate = [
     {
-        label: 'gView', 
+        label: 'gView',
         submenu: [
             {
                 label: 'Quit',
@@ -35,10 +35,10 @@ const mainMenuTemplate = [
             },
             {
                 label: "log",
-                click(){
-                     //parse.getParent("master");
-                     //parse.log(__dirname);
-                     parse.getAndMapBranches();
+                click() {
+                    //parse.getParent("master");
+                    //parse.log(__dirname);
+                    parse.getAndMapBranches();
                 }
             }
         ]
