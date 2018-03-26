@@ -53,20 +53,7 @@ function findbranch(parentName) {
 
 }
 
-async function addBranchIfNew(name) {
 
-	var meta = branches.find(function (element) {
-		return name == element.name;
-	});
-
-
-	if (meta.branch == null) {
-		meta.parentBranch.branch(name)
-	}
-
-	return meta;
-
-}
 
 
 function addBranches(brBasic, root) {
@@ -108,13 +95,15 @@ async function main() {
 
 		var branchesInMerge = await parse.isMerge(node.Hash, result.root);
 		if (branchesInMerge != null) {
-			var merged = await addBranchIfNew(branchesInMerge[0][0]);
-			var from = await addBranchIfNew(branchesInMerge[1][0]);
+			var merged = await findbranch(branchesInMerge[0][0]);
+			var from = await findbranch(branchesInMerge[1][0]);
 			from.branch.merge(merged.branch, {
 				message: node.Message,
 				author: node.Author,
 				messageHashDisplay: false,
-				dotColor: "black",
+				//lineDash: [3, 2],
+    			dotStrokeWidth: 5,
+    			dotColor: "white",
 			});
 		}
 		else {
@@ -139,7 +128,7 @@ async function main() {
 					{
 						message: node.Message,
 						author: node.Author,
-						messageHashDisplay: false
+						messageHashDisplay: false,
 					}
 				);
 			

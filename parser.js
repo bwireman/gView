@@ -3,8 +3,8 @@ const url = require('url');
 const path = require('path');
 const Node = require('./commitnode.js');
 
-//let directoryPath = "C:/Users/Ben Wireman/Desktop/tester";
-let directoryPath = __dirname;
+let directoryPath = "C:/Users/Ben Wireman/Desktop/tester";
+//let directoryPath = __dirname;
 module.exports = class parser {
 
     async log(workingDir) {
@@ -159,7 +159,6 @@ module.exports = class parser {
             return branch.replace("*", "").trim();
         }
         else if (branch.length > 1) {
-            console.log(branch);
             var foundRoot = false;
             var toReturn = null;
             for (var br of branch) {
