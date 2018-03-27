@@ -279,7 +279,7 @@ module.exports = class parser {
 
         // }
 
-        nodes[nodes.length -1].Branch = getRoot(nodes);
+        nodes[nodes.length -1].Branch = await this.getRoot(nodes);
 
         return nodes;
     }
