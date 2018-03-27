@@ -42,11 +42,11 @@ module.exports = class parser {
                         message = line.replace("Reflog message: commit: ", "").trim();
 
 
-                        if (!commit && message.includes('Merge made by the'))
+                        if (!commit && message.includes('Reflog message: merge'))
                         {
                             merge = true;
                             mergeWith = line.substring(("Reflog message: merge").length, line.lastIndexOf(":")).trim();
-                            message.replace("Reflog message: merge ", "");
+                            message.replace("Reflog message: merge", "");
                         }
                         else
                         {
