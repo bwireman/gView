@@ -46,6 +46,7 @@ module.exports = class parser {
                         {
                             merge = true;
                             mergeWith = line.substring(("Reflog message: merge").length, line.lastIndexOf(":")).trim();
+                            message.replace("Reflog message: merge ", "");
                         }
                         else
                         {
