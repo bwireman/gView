@@ -17,8 +17,8 @@ app.on('ready', function () {
         protocol: 'file',
         slashes: true
     }));
-    //     const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
-    //    Menu.setApplicationMenu(mainMenu);
+        // const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
+        // Menu.setApplicationMenu(mainMenu);
 });
 
 //create menu template
@@ -37,8 +37,8 @@ const mainMenuTemplate = [
                 label: "log",
                 click() {
                     //parse.getParent("master");
-                    //parse.log(__dirname);
-                    parse.getAndMapBranches();
+                    parse.log(__dirname);
+                    //parse.getAndMapBranches();
                 }
             }
         ]

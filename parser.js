@@ -7,19 +7,86 @@ const Node = require('./commitnode.js');
 let directoryPath = __dirname;
 module.exports = class parser {
 
+   
+
     async log(workingDir) {
         const git = require('simple-git/promise');
 
-        let fullLogJson = null;
+        let hash = " ";
+        let message = " ";
+        let branch = " ";
+        let author = " ";
+        let date = " ";
+        let merge = false;
+        let mergeWith = null;
+        let log = [];
+        var fullLogJson = await git(directoryPath).raw(['log', '-g', '--all']);
         try {
-            fullLogJson = await git(workingDir).log({ '--decorate': null, '--all': null });
+                var temp = fullLogJson.split("\n");
+                var lineCount = 0;
+               
+                for (var line of temp) {
+                    //console.log( "\n" + line);
+
+                    if (lineCount == 0) {
+                        hash = line.replace("commit", "").trim();
+                    }
+                    else if (lineCount == 1) { 
+                        branch = line.replace("Reflog: ", "");
+                        var beforeBracket = branch.substring(0, branch.indexOf("@{"));
+                        var lastSlash = beforeBracket.lastIndexOf("/");
+                        branch = beforeBracket.substring(lastSlash + 1, beforeBracket.length);
+                    }
+                    else if (lineCount == 2) {
+                        var commit = line.includes("commit:");
+                        message = line.replace("Reflog message: commit: ", "").trim();
+
+
+                        if (!commit && message.includes('Merge made by the'))
+                        {
+                            merge = true;
+                            mergeWith = line.substring(("Reflog message: merge").length, line.lastIndexOf(":")).trim();
+                        }
+                        else
+                        {
+                            merge = false;
+                            mergeWith = null;
+                        }
+
+                    }
+                    else if (lineCount == 3) {
+                        author = line.replace("Author: ", "").trim();
+                    }
+                    else if (lineCount == 4) {
+                        date = line.replace("Date: ", "").trim();
+                    }
+
+                    lineCount++;
+
+                    if (lineCount == 8) {
+                        lineCount = 0;
+
+                        var l = new Node(author, date, branch, message, hash, merge, mergeWith);
+
+                        log.push(l);
+
+                        //console.log(log.all);
+
+                    }
+                }
+
+            console.log(log);
+
         }
         catch (e) {
             console.log(e);
         }
 
-        return fullLogJson;
+        return log;
+
     }
+
+   
 
     Branch(name, prName) {
 
@@ -194,22 +261,25 @@ module.exports = class parser {
             }
         }
 
+        return "master";
+
     }
 
     async buildNodes() {
 
         let nodes = [];
 
-        let log = await this.log(directoryPath);
-        for (var i = 0; i < log.all.length; i++) {
-            nodes.push(new Node(log.all[i].author_name, log.all[i].date, this.parseBranch(log.all[i].message), log.all[i].message, log.all[i].hash));
-        }
-        var root = await this.getRoot(nodes);
-        for (var i = 0; i < nodes.length; i++) {
+        nodes = await this.log(directoryPath);
+        // for (var i = 0; i < log.all.length; i++) {
+        //     nodes.push(new Node(log.all[i].author_name, log.all[i].date, log.all[i].branch, log.all[i].message, log.all[i].hash));
+        // }
+        // for (var i = 0; i < nodes.length; i++) {
 
-            nodes[i].Branch = await this.getBranch(nodes[i].Hash, root);
+        //     nodes[i].Branch = await this.getBranch(nodes[i].Hash, root);
 
-        }
+        // }
+
+        nodes[nodes.length -1].Branch = getRoot(nodes);
 
         return nodes;
     }
@@ -258,11 +328,15 @@ module.exports = class parser {
         }
 
 
+
         if (parents.length > 1) {
             var branches = [];
             for (var prHash of parents) {
+                console.log(parents);
                 branches.push(await this.getBranch(prHash, root))
             }
+
+
 
             return branches;
 

@@ -13,7 +13,7 @@ var config = {
 
 var parse = new Parser();
 var gitGraph = new GitGraph(config);
-var branches = [];
+let ALLbranches = [];
 
 async function init() {
 
@@ -30,22 +30,24 @@ async function init() {
 
 }
 
-function branchMeta(br, nm, pr, parentBranch) {
-	return {
-		"branch": br,
-		"name": nm,
-		"parent": pr,
-		"added": false
-	};
+class branchMetaDATA {
+
+	constructor(br, nm, pr, parentBranch) {
+        this.branch = br;
+		this.name = nm;
+		this.parent = pr;
+		this.added = false;
+    };
 }
 
 function findbranch(parentName) {
-	var meta = branches.find(function (element) {
+
+	var meta = ALLbranches.find(function (element) {
 		return parentName == element.name;
 	});
 
 	if (meta == undefined) {
-		return branches.find(function (element) {
+		return ALLbranches.find(function (element) {
 			return parentName == element.parent;
 		});
 	}
@@ -57,29 +59,30 @@ function findbranch(parentName) {
 
 
 function addBranches(brBasic, root) {
-	var rootBranch = gitGraph.branch(root);
-	branches.push(branchMeta(rootBranch, root, root, rootBranch));
-	branches[0].added = true;
-	// branches.push(branchMeta(rootBranch.branch("dev"), "dev", root));
-	// branches.push(branchMeta(branches[1].branch.branch("devisparent"), "devisparent", branches[1].name));
 	console.log(brBasic);
+	console.log(root);
+	var rootBranch = gitGraph.branch(root);
+	ALLbranches.push(new branchMetaDATA(rootBranch, root, root, rootBranch));
+	ALLbranches[0].added = true;
 	var toAdd = brBasic.length - 1;
 	while (toAdd > 0) {
 		for (var br of brBasic) {
-			var Parent = branches.find(function (elt) {
+			//console.log(br);
+			var Parent = ALLbranches.find(function (elt) {
 				return elt.name == br.parent && br.name != root;
 			});
 
 			if (Parent != undefined) {
-				branches.push(branchMeta(Parent.branch.branch(br.name), br.name, br.parent));
+				ALLbranches.push(new branchMetaDATA(Parent.branch.branch(br.name), br.name, br.parent));
 				toAdd--;
 			}
+
 
 
 		}
 	}
 
-	console.log(branches);
+	console.log(ALLbranches);
 	return rootBranch;
 }
 
@@ -90,13 +93,36 @@ async function main() {
 	var branch = addBranches(brBasic, result.root);
 
 	for (node of result.nodes) {
-		branch = findbranch(node.Branch[0]);
+		branch = findbranch(node.Branch);
 
+		if (node.merge) {
+			var merged = await findbranch(node.mergeWith);
+			var from = branch;
+			console.log(from);
+			console.log(merged);
 
-		var branchesInMerge = await parse.isMerge(node.Hash, result.root);
-		if (branchesInMerge != null) {
-			var merged = await findbranch(branchesInMerge[0][0]);
-			var from = await findbranch(branchesInMerge[1][0]);
+			if (branch.added == false) {
+				branch.added = true;
+				var Parent = ALLbranches.find(function (elt) {
+					return elt.name == branch.parent;
+				});
+
+				branch.branch.delete();
+				var newlyAdded = Parent.branch.branch(branch.name);
+				branch.branch = newlyAdded;
+			}
+
+			if (merged.added == false) {
+				merged.added = true;
+				var Parent = ALLbranches.find(function (elt) {
+					return elt.name == merged.parent;
+				});
+
+				merged.branch.delete();
+				var newlyAdded = Parent.branch.branch(merged.name);
+				merged.branch = newlyAdded;
+			}
+
 			from.branch.merge(merged.branch, {
 				message: node.Message,
 				author: node.Author,
@@ -108,7 +134,7 @@ async function main() {
 		else {
 			if (branch.added == false) {
 				branch.added = true;
-				var Parent = branches.find(function (elt) {
+				var Parent = ALLbranches.find(function (elt) {
 					return elt.name == branch.parent;
 				});
 
