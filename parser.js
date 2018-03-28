@@ -266,7 +266,7 @@ module.exports = class parser {
             }
         }
 
-        return "master";
+        return "dev";
 
     }
 

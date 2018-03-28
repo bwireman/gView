@@ -65,6 +65,7 @@ function addBranches(brBasic, root) {
 	ALLbranches.push(new branchMetaDATA(rootBranch, root, root, rootBranch));
 	ALLbranches[0].added = true;
 	var toAdd = brBasic.length - 1;
+	console.log(brBasic);
 	while (toAdd > 0) {
 		for (var br of brBasic) {
 			//console.log(br);
