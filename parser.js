@@ -46,7 +46,8 @@ module.exports = class parser {
                         {
                             merge = true;
                             mergeWith = line.substring(("Reflog message: merge").length, line.lastIndexOf(":")).trim();
-                            message.replace("Reflog message: merge", "");
+                            message = message.replace("Reflog message: merge", "");
+                            console.log(message);
                         }
                         else
                         {
@@ -61,6 +62,10 @@ module.exports = class parser {
                     else if (lineCount == 4) {
                         date = line.replace("Date: ", "").trim();
                     }
+                    else if (merge && lineCount == 6)
+                    {
+                        message = line.trim();
+                    }
 
                     lineCount++;
 
@@ -70,8 +75,6 @@ module.exports = class parser {
                         var l = new Node(author, date, branch, message, hash, merge, mergeWith);
 
                         log.push(l);
-
-                        //console.log(log.all);
 
                     }
                 }
@@ -106,7 +109,7 @@ module.exports = class parser {
         let branches = [];
         try {
             var output = await git(directoryPath).branch();
-            console.log(output);
+            // console.log(output);
             for (var br of output.all) {
 
                 if (!br.includes("remotes/")) {
@@ -200,7 +203,6 @@ module.exports = class parser {
                 }
             }
 
-            console.log(parent);
             return parent;
 
         }
