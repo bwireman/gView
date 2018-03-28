@@ -26,6 +26,8 @@ async function init() {
 		"branchBasic": branchBasic
 	}
 
+	console.log(info);
+
 	return info;
 
 }
@@ -59,8 +61,6 @@ function findbranch(parentName) {
 
 
 function addBranches(brBasic, root) {
-	console.log(brBasic);
-	console.log(root);
 	var rootBranch = gitGraph.branch(root);
 	ALLbranches.push(new branchMetaDATA(rootBranch, root, root, rootBranch));
 	ALLbranches[0].added = true;
@@ -75,6 +75,7 @@ function addBranches(brBasic, root) {
 			if (Parent != undefined) {
 				ALLbranches.push(new branchMetaDATA(Parent.branch.branch(br.name), br.name, br.parent));
 				toAdd--;
+				break;
 			}
 
 

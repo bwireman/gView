@@ -36,8 +36,11 @@ const mainMenuTemplate = [
             {
                 label: "log",
                 click() {
-                    //parse.getParent("master");
-                    parse.log(__dirname);
+                    parse.getParent("master");
+                    parse.getParent("dev");
+                    parse.getParent("refigureoutgetBranch");
+
+                    //parse.log(__dirname);
                     //parse.getAndMapBranches();
                 }
             }

@@ -106,6 +106,7 @@ module.exports = class parser {
         let branches = [];
         try {
             var output = await git(directoryPath).branch();
+            console.log(output);
             for (var br of output.all) {
 
                 if (!br.includes("remotes/")) {
@@ -199,6 +200,7 @@ module.exports = class parser {
                 }
             }
 
+            console.log(parent);
             return parent;
 
         }
@@ -283,70 +285,6 @@ module.exports = class parser {
         nodes[nodes.length -1].Branch = await this.getRoot(nodes);
 
         return nodes;
-    }
-
-    parseBranch(commitMessage) {
-
-        if (commitMessage.includes("(") && commitMessage.includes(")")) {
-            let leftParen = commitMessage.indexOf("(") + 1;
-            let rightParen = commitMessage.indexOf(")");
-            let possibles = commitMessage.substring(leftParen, rightParen).split(",");
-            let temp = [];
-            for (var i = 0; i < possibles.length; ++i) {
-                if (!possibles[i].includes("origin")) {
-                    temp.push(possibles[i].replace("HEAD -> ", "").trim());
-                }
-            }
-
-            return temp;
-        }
-        else {
-            return [];
-        }
-    }
-
-    async isMerge(hash, root) {
-
-        const git = require('simple-git/promise');
-
-        let commitInfo = null;
-        try {
-            commitInfo = await git(directoryPath).raw([
-                'cat-file', '-p', hash
-            ]);
-        }
-        catch (e) {
-            console.log(e);
-        }
-
-        commitInfo = commitInfo.split("\n");
-        var parents = [];
-
-        for (var i = 1; i < commitInfo.length; ++i) {
-            if (commitInfo[i].includes("parent") && i != commitInfo.length - 2) {
-                parents.push(commitInfo[i].replace("parent", "").trim());
-            }
-        }
-
-
-
-        if (parents.length > 1) {
-            var branches = [];
-            for (var prHash of parents) {
-                console.log(parents);
-                branches.push(await this.getBranch(prHash, root))
-            }
-
-
-
-            return branches;
-
-        }
-        else {
-            return null;
-        }
-
-
     }
 
 }
