@@ -72,7 +72,13 @@ function addBranches(brBasic, root) {
 				return elt.name == br.parent && br.name != root;
 			});
 
-			if (Parent != undefined) {
+			var me = ALLbranches.find(function (elt) {
+				return elt.name == br.name;
+			});
+
+			console.log(me);
+
+			if (Parent != undefined && me == undefined) {
 				ALLbranches.push(new branchMetaDATA(Parent.branch.branch(br.name), br.name, br.parent));
 				toAdd--;
 				break;
@@ -98,6 +104,7 @@ async function main() {
 
 		if (node.merge) {
 			var merged = await findbranch(node.mergeWith);
+			console.log(node);
 			var from = branch;
 			console.log(from);
 			console.log(merged);
